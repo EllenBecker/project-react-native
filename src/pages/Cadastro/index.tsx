@@ -1,15 +1,27 @@
-import { Button, Text, TextInput, View, StyleSheet  } from "react-native";
-import { useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
+  route: any,
   navigation: any
 }
 
-export default function Cadastro({navigation}: Props) {
+export default function Cadastro({ route, navigation}: Props) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [celular, setCelular] = useState('');
+
+  const isEdicao = route.params && route.params.pessoa;
+
+  useEffect(() => {
+    if (isEdicao) {
+      const { nome, email, celular } = route.params.pessoa;
+      setNome(nome);
+      setEmail(email);
+      setCelular(celular);
+    }
+  }, [isEdicao]);
 
   const handleCadastro = async () => {
     const pessoa = {
@@ -20,12 +32,18 @@ export default function Cadastro({navigation}: Props) {
 
     try {
       const pessoasAnteriores = await AsyncStorage.getItem('pessoas');
-      const pessoas = pessoasAnteriores ? JSON.parse(pessoasAnteriores) : [];
+      let pessoas = pessoasAnteriores ? JSON.parse(pessoasAnteriores) : [];
 
-      pessoas.push(pessoa);
-      await AsyncStorage.setItem('pessoas', JSON.stringify(pessoas));
+      if (isEdicao) {
+        const { nome: oldNome } = route.params.pessoa;
+        pessoas = pessoas.map((p: any) => (p.nome === oldNome ? pessoa : p));
+      } else {
+        pessoas.push(pessoa);
+      }
 
-      navigation.navigate('Listagem', { pessoa });
+      await AsyncStorage.setItem('pessoas', JSON.stringify(pessoas)).then((result) => {
+        navigation.navigate('Listagem',{ pessoas: pessoas });
+      });
     } catch (error) {
       console.log('Erro ao salvar a pessoa:', error);
     }
