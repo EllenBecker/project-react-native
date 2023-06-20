@@ -7,51 +7,48 @@ interface Props {
   navigation: any
 }
 
-export default function Cadastro({ route, navigation}: Props) {
+export default function CreateCourse({ route, navigation }: Props) {
   const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [celular, setCelular] = useState('');
+  const [studentLimit, setStudentLimit] = useState('');
 
-  const isEdicao = route.params && route.params.pessoa;
+  const isEdicao = route.params && route.params.course;
 
   useEffect(() => {
     if (isEdicao) {
-      const { nome, email, celular } = route.params.pessoa;
+      const { nome, studentLimit } = route.params.course;
       setNome(nome);
-      setEmail(email);
-      setCelular(celular);
+      setStudentLimit(studentLimit);
     }
   }, [isEdicao]);
 
-  const handleCadastro = async () => {
-    const pessoa = {
+  const handleCreate = async () => {
+    const course = {
         nome,
-        email,
-        celular,
+        studentLimit
     };
 
     try {
-      const pessoasAnteriores = await AsyncStorage.getItem('pessoas');
-      let pessoas = pessoasAnteriores ? JSON.parse(pessoasAnteriores) : [];
+      const courseBefore = await AsyncStorage.getItem('courses');
+      let courses = courseBefore ? JSON.parse(courseBefore) : [];
 
       if (isEdicao) {
-        const { nome: oldNome } = route.params.pessoa;
-        pessoas = pessoas.map((p: any) => (p.nome === oldNome ? pessoa : p));
+        const { nome: oldNome } = route.params.course;
+        courses = courses.map((p: any) => (p.nome === oldNome ? course : p));
       } else {
-        pessoas.push(pessoa);
+        courses.push(course);
       }
 
-      await AsyncStorage.setItem('pessoas', JSON.stringify(pessoas)).then((result) => {
-        navigation.navigate('Listagem',{ pessoas: pessoas });
+      await AsyncStorage.setItem('courses', JSON.stringify(courses)).then((result) => {
+        navigation.navigate('Listagem de cursos',{ courses: courses });
       });
     } catch (error) {
-      console.log('Erro ao salvar a pessoa:', error);
+      console.log('Erro ao salvar o curso:', error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tela de Cadastro</Text>
+      <Text style={styles.title}>Tela de cadastro de curso</Text>
         <View style={styles.card}>
         <TextInput
             placeholder="Nome"
@@ -60,18 +57,12 @@ export default function Cadastro({ route, navigation}: Props) {
             style={styles.input}
         />
         <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={text => setEmail(text)}
+            placeholder="Limite de alunos"
+            value={studentLimit}
+            onChangeText={text => setStudentLimit(text)}
             style={styles.input}
         />
-        <TextInput
-            placeholder="Celular"
-            value={celular}
-            onChangeText={text => setCelular(text)}
-            style={styles.input}
-        />
-        <Button title="Cadastrar" onPress={handleCadastro} />
+        <Button title="Cadastrar" onPress={handleCreate} />
       </View>
     </View>
   );

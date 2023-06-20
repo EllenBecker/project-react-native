@@ -2,67 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ListagemScreen = ({ route, navigation }: any) => {
-  const [pessoas, setPessoas] = useState([]);
+const CourseList = ({ route, navigation }: any) => {
+  const [courses, setCourse] = useState([]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       console.log('Tela anterior foi focada');
-      fetchPessoas();
+      fetchCourse();
     });
 
-    const fetchPessoas = async () => {
+    const fetchCourse = async () => {
       try {
-        const pessoasAnteriores = await AsyncStorage.getItem('pessoas');
-        const pessoas = pessoasAnteriores ? JSON.parse(pessoasAnteriores) : [];
+        const courseBefore = await AsyncStorage.getItem('courses');
+        const courses = courseBefore ? JSON.parse(courseBefore) : [];
   
-        setPessoas(pessoas);
+        setCourse(courses);
       } catch (error) {
-        console.log('Erro ao recuperar as pessoas:', error);
+        console.log('Erro ao recuperar os cursos:', error);
       }
     };
-    fetchPessoas();
+    fetchCourse();
   }, []);
 
-  
-
-  const handleEditarPessoa = (item: any) => {
-    navigation.navigate('Cadastro', { pessoa: item });
+  const handleEditCourse = (item: any) => {
+    navigation.navigate('Cadastro de curso', { course: item });
   };
 
-  const handleExcluirPessoa = async (item: any) => {
+  const handleDeleteCourse = async (item: any) => {
     try {
-      const pessoasAnteriores = await AsyncStorage.getItem('pessoas');
-      let pessoas = pessoasAnteriores ? JSON.parse(pessoasAnteriores) : [];
+      const courseBefore = await AsyncStorage.getItem('courses');
+      let courses = courseBefore ? JSON.parse(courseBefore) : [];
 
-      pessoas = pessoas.filter((p: any) => p?.nome !== item?.nome);
+      courses = courses.filter((p: any) => p?.nome !== item?.nome);
 
-      await AsyncStorage.setItem('pessoas', JSON.stringify(pessoas));
+      await AsyncStorage.setItem('courses', JSON.stringify(courses));
 
-      setPessoas(pessoas);
+      setCourse(courses);
     } catch (error) {
-      console.log('Erro ao excluir a pessoa:', error);
+      console.log('Erro ao excluir o curso:', error);
     }
   };
 
-  const renderPessoaItem = ({ item }: any) => (
+  const renderCourseItem = ({ item }: any) => (
     <View style={styles.card}>
       <Text style={styles.label}>Nome:</Text>
       <Text style={styles.text}>{item?.nome}</Text>
-      <Text style={styles.label}>Telefone:</Text>
-      <Text style={styles.text}>{item?.celular}</Text>
-      <Text style={styles.label}>Endereço:</Text>
-      <Text style={styles.text}>{item?.email}</Text>
+      <Text style={styles.label}>Limite de alunos:</Text>
+      <Text style={styles.text}>{item?.studentLimit}</Text>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}
-          onPress={() => handleEditarPessoa(item)}
+          onPress={() => handleEditCourse(item)}
         >
           <Text style={styles.buttonText}>Editar</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.deleteButton]}
-          onPress={() => handleExcluirPessoa(item)}
+          onPress={() => handleDeleteCourse(item)}
         >
           <Text style={styles.buttonText}>Excluir</Text>
         </TouchableOpacity>
@@ -72,10 +68,10 @@ const ListagemScreen = ({ route, navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lista de Pessoas Cadastradas:</Text>
+      <Text style={styles.title}>Lista de cursos cadastrados:</Text>
       <FlatList
-        data={pessoas}
-        renderItem={renderPessoaItem}
+        data={courses}
+        renderItem={renderCourseItem}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.cardList}
       />
@@ -141,4 +137,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListagemScreen;
+export default CourseList;
