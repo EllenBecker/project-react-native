@@ -6,6 +6,8 @@ import StudentCreate from './Student/Create';
 import StudentList from './Student/List';
 import CourseCreate from './Course/Create';
 import CourseList from './Course/List';
+import CountryCreate from './Country/Create';
+import CountryList from './Country/List';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +20,8 @@ export default function Navigation() {
         <Stack.Screen name="Listagem" component={StudentList} />
         <Stack.Screen name="Cadastro de curso" component={CourseCreate} />
         <Stack.Screen name="Listagem de cursos" component={CourseList} />
+        <Stack.Screen name="Cadastro de países" component={CountryCreate} />
+        <Stack.Screen name="Listagem de países" component={CountryList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
